@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoWP - 部落格自動產文系統</title>
+  <meta name="description" content="AutoWP 部落格自動產文系統，結合 AI 生成與 WordPress 發布">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       Toast Notification Container
+       ============================================================ -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ============================================================
+       PAGE: Login
+       ============================================================ -->
+  <section class="page page-auth active" data-page="login">
+    <div class="auth-card card">
+      <div class="auth-logo">
+        <h1>AutoWP</h1>
+        <p>部落格自動產文系統</p>
+      </div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="form-group">
+          <label class="form-label" for="login-username">電子郵件</label>
+          <input
+            class="form-input"
+            type="email"
+            id="login-username"
+            name="username"
+            placeholder="請輸入電子郵件"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">密碼</label>
+          <div class="input-with-toggle">
+            <input
+              class="form-input"
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="請輸入密碼"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="input-toggle-btn" data-toggle-password="login-password" aria-label="顯示/隱藏密碼">
+              &#128065;
+            </button>
+          </div>
+        </div>
+
+        <div id="login-error" class="form-error hidden"></div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-md" id="login-submit">
+          登入
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        還沒有帳號？<a href="#" data-navigate="register">立即註冊</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: Register
+       ============================================================ -->
+  <section class="page page-auth" data-page="register">
+    <div class="auth-card card">
+      <div class="auth-logo">
+        <h1>AutoWP</h1>
+        <p>建立新帳號</p>
+      </div>
+
+      <form id="register-form" autocomplete="on">
+        <div class="form-group">
+          <label class="form-label" for="reg-username">使用者名稱</label>
+          <input
+            class="form-input"
+            type="text"
+            id="reg-username"
+            name="username"
+            placeholder="至少 3 個字元"
+            autocomplete="username"
+            required
+            minlength="3"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-email">電子郵件</label>
+          <input
+            class="form-input"
+            type="email"
+            id="reg-email"
+            name="email"
+            placeholder="your@email.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-password">密碼</label>
+          <div class="input-with-toggle">
+            <input
+              class="form-input"
+              type="password"
+              id="reg-password"
+              name="password"
+              placeholder="至少 8 個字元"
+              autocomplete="new-password"
+              required
+              minlength="8"
+            >
+            <button type="button" class="input-toggle-btn" data-toggle-password="reg-password" aria-label="顯示/隱藏密碼">
+              &#128065;
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-password-confirm">確認密碼</label>
+          <div class="input-with-toggle">
+            <input
+              class="form-input"
+              type="password"
+              id="reg-password-confirm"
+              name="password_confirm"
+              placeholder="再次輸入密碼"
+              autocomplete="new-password"
+              required
+              minlength="8"
+            >
+            <button type="button" class="input-toggle-btn" data-toggle-password="reg-password-confirm" aria-label="顯示/隱藏密碼">
+              &#128065;
+            </button>
+          </div>
+        </div>
+
+        <div id="register-error" class="form-error hidden"></div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-md" id="register-submit">
+          建立帳號
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        已有帳號？<a href="#" data-navigate="login">返回登入</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: Dashboard
+       ============================================================ -->
+  <section class="page page-dashboard" data-page="dashboard">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link active" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Main Content -->
+    <main class="dashboard-content">
+
+      <!-- Pipeline Progress Bar -->
+      <div class="pipeline" id="pipeline">
+        <div class="pipeline-step" data-step="1">
+          <div class="pipeline-node">
+            <div class="pipeline-dot active">1</div>
+            <span class="pipeline-label">API 設定</span>
+          </div>
+        </div>
+        <div class="pipeline-connector" data-connector="1-2"></div>
+        <div class="pipeline-step" data-step="2">
+          <div class="pipeline-node">
+            <div class="pipeline-dot">2</div>
+            <span class="pipeline-label">Prompt 編輯</span>
+          </div>
+        </div>
+        <div class="pipeline-connector" data-connector="2-3"></div>
+        <div class="pipeline-step" data-step="3">
+          <div class="pipeline-node">
+            <div class="pipeline-dot">3</div>
+            <span class="pipeline-label">執行生成</span>
+          </div>
+        </div>
+        <div class="pipeline-connector" data-connector="3-4"></div>
+        <div class="pipeline-step" data-step="4">
+          <div class="pipeline-node">
+            <div class="pipeline-dot">4</div>
+            <span class="pipeline-label">結果預覽</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" data-tab="step1" aria-selected="true">
+          <span class="tab-number">1</span>
+          API 設定
+        </button>
+        <button class="tab-btn" role="tab" data-tab="step2" aria-selected="false">
+          <span class="tab-number">2</span>
+          Prompt 編輯
+        </button>
+        <button class="tab-btn" role="tab" data-tab="step3" aria-selected="false">
+          <span class="tab-number">3</span>
+          執行生成
+        </button>
+        <button class="tab-btn" role="tab" data-tab="step4" aria-selected="false">
+          <span class="tab-number">4</span>
+          結果預覽
+        </button>
+      </div>
+
+      <!-- ======================== Step 1: API Settings ======================== -->
+      <div class="tab-panel active" id="step1" role="tabpanel">
+        <div class="card-header">
+          <h2>API 與站台設定</h2>
+          <p>請先設定各項 API 金鑰與 WordPress 站台資訊，系統將加密儲存您的金鑰。</p>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Anthropic API Key -->
+          <div class="card setting-card">
+            <div class="setting-card-icon anthropic">AI</div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-sm);">Anthropic API Key</h3>
+            <p class="text-secondary" style="font-size: var(--text-xs); margin-bottom: var(--space-md);">用於 Claude AI 文章生成</p>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <div class="input-with-toggle">
+                <input class="form-input" type="password" id="api-anthropic" placeholder="sk-ant-..." autocomplete="off">
+                <button type="button" class="input-toggle-btn" data-toggle-password="api-anthropic" aria-label="顯示/隱藏">&#128065;</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-secondary" style="font-size: var(--text-xs);">
+                <span class="status-dot pending" id="status-anthropic"></span>
+                <span id="status-anthropic-text">未設定</span>
+              </span>
+              <button class="btn btn-sm btn-secondary" id="save-anthropic">儲存</button>
+            </div>
+          </div>
+
+          <!-- DISABLED: image gen
+          <div class="card setting-card">
+            <div class="setting-card-icon gemini">IMG</div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-sm);">HuggingFace API Token</h3>
+            <p class="text-secondary" style="font-size: var(--text-xs); margin-bottom: var(--space-md);">用於 AI 圖片生成（選填，免費申請）</p>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <div class="input-with-toggle">
+                <input class="form-input" type="password" id="api-hf" placeholder="hf_..." autocomplete="off">
+                <button type="button" class="input-toggle-btn" data-toggle-password="api-hf" aria-label="顯示/隱藏">&#128065;</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-secondary" style="font-size: var(--text-xs);">
+                <span class="status-dot pending" id="status-hf"></span>
+                <span id="status-hf-text">未設定</span>
+              </span>
+              <button class="btn btn-sm btn-secondary" id="save-hf">儲存</button>
+            </div>
+          </div>
+          -->
+
+          <!-- WordPress Site -->
+          <div class="card setting-card">
+            <div class="setting-card-icon wordpress">WP</div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-sm);">WordPress 站台</h3>
+            <p class="text-secondary" style="font-size: var(--text-xs); margin-bottom: var(--space-md);">文章將發布到此站台</p>
+            <div class="form-group">
+              <input class="form-input" type="url" id="wp-site-url" placeholder="https://yourblog.com" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <input class="form-input" type="text" id="wp-username" placeholder="WordPress 使用者名稱" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <div class="input-with-toggle">
+                <input class="form-input" type="password" id="wp-app-password" placeholder="應用程式密碼" autocomplete="off">
+                <button type="button" class="input-toggle-btn" data-toggle-password="wp-app-password" aria-label="顯示/隱藏">&#128065;</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-secondary" style="font-size: var(--text-xs);">
+                <span class="status-dot pending" id="status-wordpress"></span>
+                <span id="status-wordpress-text">未設定</span>
+              </span>
+              <div class="flex gap-sm">
+                <button class="btn btn-sm btn-ghost" id="test-wp-connection">測試連線</button>
+                <button class="btn btn-sm btn-secondary" id="save-wordpress">儲存</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resend Email Notification -->
+          <div class="card setting-card">
+            <div class="setting-card-icon smtp">&#9993;</div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-sm);">郵件通知（Resend）</h3>
+            <p class="text-secondary" style="font-size: var(--text-xs); margin-bottom: var(--space-md);">完成後發送通知信（選填，<a href="https://resend.com" target="_blank" rel="noopener">免費申請</a>）</p>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <div class="input-with-toggle">
+                <input class="form-input" type="password" id="resend-api-key" placeholder="Resend API Key（re_...）" autocomplete="off">
+                <button type="button" class="input-toggle-btn" data-toggle-password="resend-api-key" aria-label="顯示/隱藏">&#128065;</button>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <input class="form-input" type="email" id="notify-email" placeholder="通知收件信箱" autocomplete="off">
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-secondary" style="font-size: var(--text-xs);">
+                <span class="status-dot pending" id="status-resend"></span>
+                <span id="status-resend-text">未設定</span>
+              </span>
+              <button class="btn btn-sm btn-secondary" id="save-resend">儲存</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-xl">
+          <div></div>
+          <button class="btn btn-primary" id="step1-next">下一步：Prompt 編輯</button>
+        </div>
+      </div>
+
+      <!-- ======================== Step 2: Prompt Editor ======================== -->
+      <div class="tab-panel" id="step2" role="tabpanel">
+        <div class="card-header">
+          <h2>Prompt 編輯器</h2>
+          <p>自訂 AI 文章生成的提示詞。可從右側拖曳變數插入。</p>
+        </div>
+
+        <!-- Article Input Fields -->
+        <div class="card mb-lg">
+          <h3 style="font-size: var(--text-base); margin-bottom: var(--space-md);">文章基本資訊</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="article-keyword">關鍵字 *</label>
+              <input class="form-input" type="text" id="article-keyword" placeholder="例如：SEO 優化技巧" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="article-title">文章標題（選填）</label>
+              <input class="form-input" type="text" id="article-title" placeholder="留空則由 AI 自動產生">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="article-direction">寫作方向（選填）</label>
+            <input class="form-input" type="text" id="article-direction" placeholder="例如：針對新手、著重實作、比較不同工具">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="article-material">個人經驗 / 素材（選填）</label>
+            <textarea class="form-textarea" id="article-material" rows="3" placeholder="提供個人使用經驗或品牌故事，AI 會以第一人稱自然融入文章"></textarea>
+          </div>
+
+          <div class="form-row mt-md">
+            <div class="form-group">
+              <label class="form-label" for="article-wp-site">發布站台</label>
+              <select class="form-select" id="article-wp-site">
+                <option value="">請先在 Step 1 設定站台</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="article-status">發布狀態</label>
+              <select class="form-select" id="article-status">
+                <option value="draft">草稿</option>
+                <option value="publish">直接發布</option>
+                <option value="pending">待審核</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-md mt-md">
+            <label class="toggle">
+              <input type="checkbox" id="toggle-direct-upload">
+              <span class="toggle-track"></span>
+              <span class="toggle-label">直接上傳模式（跳過 AI 產文，貼上現有 HTML 內容）</span>
+            </label>
+          </div>
+          <div class="form-group mt-md hidden" id="direct-content-group">
+            <label class="form-label" for="direct-content">文章 HTML 內容</label>
+            <textarea class="form-textarea" id="direct-content" rows="10" placeholder="貼上 Gutenberg HTML 格式的文章內容..." style="font-family: var(--font-mono); font-size: 13px;"></textarea>
+          </div>
+          <div class="flex items-center gap-md mt-md">
+            <!-- DISABLED: image gen
+            <label class="toggle">
+              <input type="checkbox" id="toggle-generate-images" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-label">AI 圖片生成（需 HuggingFace API Token）</span>
+            </label>
+            -->
+            <label class="toggle">
+              <input type="checkbox" id="toggle-email-notify">
+              <span class="toggle-track"></span>
+              <span class="toggle-label">完成後郵件通知</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Prompt Editor -->
+        <div class="prompt-editor-layout">
+          <div class="prompt-editor">
+            <div class="prompt-toolbar">
+              <button class="btn-ghost btn btn-sm" id="btn-reset-prompt">重置預設</button>
+              <button class="btn-ghost btn btn-sm" id="btn-copy-prompt">複製</button>
+              <span class="text-secondary" style="font-size: var(--text-xs); margin-left: auto;">
+                字數：<span id="prompt-char-count">0</span>
+              </span>
+            </div>
+            <textarea
+              class="form-textarea"
+              id="prompt-textarea"
+              placeholder="在此編輯 AI 提示詞..."
+              style="min-height: 400px; font-family: var(--font-mono); font-size: 13px;"
+            ></textarea>
+          </div>
+
+          <div class="variable-panel">
+            <div class="variable-panel-header">
+              可用變數（拖曳插入）
+            </div>
+            <div class="variable-list" id="variable-list">
+              <div class="variable-item" draggable="true" data-variable="{{ keyword }}">
+                <span class="variable-tag">{{ keyword }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ title }}">
+                <span class="variable-tag">{{ title }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ direction }}">
+                <span class="variable-tag">{{ direction }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ material }}">
+                <span class="variable-tag">{{ material }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ tone }}">
+                <span class="variable-tag">{{ tone }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ word_count }}">
+                <span class="variable-tag">{{ word_count }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+              <div class="variable-item" draggable="true" data-variable="{{ language }}">
+                <span class="variable-tag">{{ language }}</span>
+                <span class="drag-handle">&#8942;&#8942;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-xl">
+          <button class="btn btn-secondary" id="step2-prev">上一步</button>
+          <button class="btn btn-primary" id="step2-next">下一步：確認執行</button>
+        </div>
+      </div>
+
+      <!-- ======================== Step 3: Execute ======================== -->
+      <div class="tab-panel" id="step3" role="tabpanel">
+        <div class="card-header">
+          <h2>確認並執行</h2>
+          <p>請確認以下設定無誤後，點擊「開始生成」。</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="execute-summary">
+          <div class="card summary-item">
+            <div class="summary-item-label">關鍵字</div>
+            <div class="summary-item-value" id="summary-keyword">-</div>
+          </div>
+          <div class="card summary-item">
+            <div class="summary-item-label">標題</div>
+            <div class="summary-item-value" id="summary-title">AI 自動產生</div>
+          </div>
+          <div class="card summary-item">
+            <div class="summary-item-label">發布站台</div>
+            <div class="summary-item-value" id="summary-site">-</div>
+          </div>
+          <div class="card summary-item">
+            <div class="summary-item-label">發布狀態</div>
+            <div class="summary-item-value" id="summary-status">草稿</div>
+          </div>
+          <div class="card summary-item">
+            <div class="summary-item-label">郵件通知</div>
+            <div class="summary-item-value" id="summary-email">關閉</div>
+          </div>
+        </div>
+
+        <!-- Progress Section (hidden until execution starts) -->
+        <div class="card mt-lg hidden" id="execution-progress">
+          <h3 style="font-size: var(--text-base); margin-bottom: var(--space-md);">生成進度</h3>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-info">
+            <span id="progress-step">準備中...</span>
+            <span id="progress-percent">0%</span>
+          </div>
+
+          <!-- Execution Log -->
+          <div class="mt-lg" id="execution-log" style="font-size: var(--text-xs); font-family: var(--font-mono);">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="execute-actions" id="execute-actions">
+          <button class="btn btn-secondary" id="step3-prev">上一步</button>
+          <button class="btn btn-primary btn-lg" id="btn-execute">
+            開始生成
+          </button>
+        </div>
+
+        <!-- Cancel button (shown during execution) -->
+        <div class="execute-actions hidden" id="execute-cancel-actions">
+          <button class="btn btn-danger" id="btn-cancel-execute">取消生成</button>
+        </div>
+      </div>
+
+      <!-- ======================== Step 4: Result ======================== -->
+      <div class="tab-panel" id="step4" role="tabpanel">
+        <div class="card-header">
+          <h2>生成結果</h2>
+          <p>文章已生成完成，請預覽內容並確認。</p>
+        </div>
+
+        <!-- Result not ready -->
+        <div class="empty-state" id="result-empty">
+          <div class="empty-state-icon">&#128196;</div>
+          <h3>尚無生成結果</h3>
+          <p>請先到「執行生成」步驟產生文章。</p>
+        </div>
+
+        <!-- Result content (hidden until result available) -->
+        <div class="hidden" id="result-content">
+          <!-- Result Meta -->
+          <div class="result-meta">
+            <div class="card result-meta-item">
+              <div class="result-meta-label">SEO 標題</div>
+              <div class="result-meta-value" id="result-seo-title">-</div>
+            </div>
+            <div class="card result-meta-item">
+              <div class="result-meta-label">Meta 描述</div>
+              <div class="result-meta-value" id="result-seo-desc">-</div>
+            </div>
+            <div class="card result-meta-item">
+              <div class="result-meta-label">焦點關鍵字</div>
+              <div class="result-meta-value" id="result-focus-kw">-</div>
+            </div>
+            <div class="card result-meta-item">
+              <div class="result-meta-label">WordPress 連結</div>
+              <div class="result-meta-value">
+                <a href="#" id="result-wp-link" target="_blank">開啟文章</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Article Preview -->
+          <div class="card result-card mt-lg">
+            <div class="flex items-center justify-between mb-md">
+              <h3 style="font-size: var(--text-base);" id="result-article-title">文章標題</h3>
+              <div class="flex gap-sm">
+                <button class="btn btn-sm btn-ghost" id="btn-copy-content">複製 HTML</button>
+                <button class="btn btn-sm btn-secondary" id="btn-open-wp-editor">在 WP 編輯</button>
+              </div>
+            </div>
+            <div class="result-preview" id="result-article-content">
+              <!-- Article HTML rendered here -->
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-between mt-xl">
+            <button class="btn btn-secondary" id="btn-generate-another">再生成一篇</button>
+            <button class="btn btn-primary" id="btn-go-to-logs" data-nav="logs">查看執行紀錄</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </section>
+
+  <!-- ============================================================
+       PAGE: Logs
+       ============================================================ -->
+  <section class="page page-logs" data-page="logs">
+
+    <!-- Header (shared with dashboard) -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link active" data-nav="logs">執行紀錄</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn-logs" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown-logs">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username-logs">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal-logs">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal-logs">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout-logs" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="logs-content">
+      <div class="card-header">
+        <h2>執行紀錄</h2>
+        <p>查看所有文章生成的歷史紀錄與狀態。</p>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="logs-toolbar">
+        <div class="logs-search">
+          <span class="logs-search-icon">&#128269;</span>
+          <input class="form-input" type="text" id="logs-search-input" placeholder="搜尋關鍵字或標題...">
+        </div>
+        <div class="logs-filters">
+          <select class="form-select" id="logs-filter-status" style="width: auto; min-width: 130px;">
+            <option value="">全部狀態</option>
+            <option value="generating">生成中</option>
+            <option value="generated">已生成</option>
+            <option value="published">已發布</option>
+            <option value="failed">失敗</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-logs">重新整理</button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="data-table-wrapper">
+        <table class="data-table" id="logs-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>關鍵字</th>
+              <th>文章標題</th>
+              <th>站台</th>
+              <th>狀態</th>
+              <th>建立時間</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table-body">
+            <!-- Populated by JS, example rows below for structure reference -->
+          </tbody>
+        </table>
+
+        <!-- Empty state for table -->
+        <div class="empty-state" id="logs-empty" style="padding: var(--space-2xl);">
+          <div class="empty-state-icon">&#128203;</div>
+          <h3>尚無執行紀錄</h3>
+          <p>開始生成文章後，紀錄會顯示在這裡。</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="logs-pagination">
+        <button class="pagination-btn" id="page-prev" disabled>&laquo;</button>
+        <button class="pagination-btn active">1</button>
+        <button class="pagination-btn" id="page-next">&raquo;</button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ============================================================
+       MODAL: WordPress Site Management
+       ============================================================ -->
+  <div class="modal-backdrop" id="modal-wp-sites">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>WordPress 站台管理</h3>
+        <button class="modal-close" data-close-modal="modal-wp-sites">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="modal-wp-name">站台名稱</label>
+          <input class="form-input" type="text" id="modal-wp-name" placeholder="例如：我的部落格">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="modal-wp-url">站台網址</label>
+          <input class="form-input" type="url" id="modal-wp-url" placeholder="https://yourblog.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="modal-wp-user">WordPress 使用者名稱</label>
+          <input class="form-input" type="text" id="modal-wp-user" placeholder="admin">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="modal-wp-pass">應用程式密碼</label>
+          <div class="input-with-toggle">
+            <input class="form-input" type="password" id="modal-wp-pass" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx">
+            <button type="button" class="input-toggle-btn" data-toggle-password="modal-wp-pass" aria-label="顯示/隱藏">&#128065;</button>
+          </div>
+          <div class="form-hint">在 WordPress 後台 &rarr; 使用者 &rarr; 個人資料 &rarr; 應用程式密碼 中取得。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close-modal="modal-wp-sites">取消</button>
+        <button class="btn btn-primary" id="modal-wp-save">儲存站台</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL: Log Detail
+       ============================================================ -->
+  <div class="modal-backdrop" id="modal-log-detail">
+    <div class="modal" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3>執行詳情</h3>
+        <button class="modal-close" data-close-modal="modal-log-detail">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-log-detail-body">
+        <!-- Populated by JS -->
+        <div class="skeleton skeleton-line" style="width: 100%;"></div>
+        <div class="skeleton skeleton-line" style="width: 80%;"></div>
+        <div class="skeleton skeleton-line" style="width: 60%;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close-modal="modal-log-detail">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL: Confirm
+       ============================================================ -->
+  <div class="modal-backdrop" id="modal-confirm">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 id="confirm-title">確認操作</h3>
+        <button class="modal-close" data-close-modal="modal-confirm">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary" id="confirm-message">確定要執行此操作嗎？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close-modal="modal-confirm">取消</button>
+        <button class="btn btn-danger" id="confirm-action">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>
