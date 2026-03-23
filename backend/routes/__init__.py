@@ -3,6 +3,8 @@ from .settings import settings_bp
 from .generate import generate_bp
 from .tasks import tasks_bp
 from .logs import logs_bp
+from .schedule import schedule_bp
+from .keywords import keywords_bp
 
 
 def register_blueprints(app):
@@ -11,3 +13,5 @@ def register_blueprints(app):
     app.register_blueprint(generate_bp, url_prefix='/api/generate')
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
     app.register_blueprint(logs_bp, url_prefix='/api/logs')
+    app.register_blueprint(schedule_bp, url_prefix='/api/schedule')
+    app.register_blueprint(keywords_bp, url_prefix='/api/keywords')

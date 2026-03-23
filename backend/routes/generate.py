@@ -41,8 +41,8 @@ def generate():
 
     keyword = req_data['keyword']
     title = req_data.get('title')
-    direction = req_data.get('direction')
-    material = req_data.get('material')
+    author_background = req_data.get('author_background') or req_data.get('direction')
+    article_instruction = req_data.get('article_instruction') or req_data.get('material')
     custom_prompt = req_data.get('custom_prompt')
 
     # Create task record
@@ -50,8 +50,8 @@ def generate():
         user_id=user.id,
         keyword=keyword,
         title=title,
-        direction=direction,
-        material=material,
+        direction=author_background,
+        material=article_instruction,
         status='processing',
         current_step='ai_generating',
         steps_detail={},
@@ -74,8 +74,8 @@ def generate():
                 api_key=anthropic_key,
                 keyword=keyword,
                 title=title,
-                direction=direction,
-                material=material,
+                author_background=author_background,
+                article_instruction=article_instruction,
                 custom_prompt=custom_prompt or setting.custom_prompt,
             )
 

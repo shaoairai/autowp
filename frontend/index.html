@@ -177,6 +177,9 @@
         <nav class="app-nav">
           <span class="app-nav-link active" data-nav="dashboard">主控台</span>
           <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link" data-nav="schedule">排程</span>
+          <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn" title="使用者選單">U</div>
@@ -375,12 +378,12 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="article-direction">寫作方向（選填）</label>
-            <input class="form-input" type="text" id="article-direction" placeholder="例如：針對新手、著重實作、比較不同工具">
+            <label class="form-label" for="article-author-background">作者背景（選填）</label>
+            <input class="form-input" type="text" id="article-author-background" placeholder="例如：10年網頁設計師、擁有電商品牌的創業者...">
           </div>
           <div class="form-group">
-            <label class="form-label" for="article-material">個人經驗 / 素材（選填）</label>
-            <textarea class="form-textarea" id="article-material" rows="3" placeholder="提供個人使用經驗或品牌故事，AI 會以第一人稱自然融入文章"></textarea>
+            <label class="form-label" for="article-instruction">本篇指令 *</label>
+            <textarea class="form-textarea" id="article-instruction" rows="4" placeholder="包含內容方向＋必答重點＋目標讀者＋限制。例如：針對剛開店的電商新手，說明如何選擇第一個WordPress主題，必須比較付費與免費方案，不要推薦特定品牌"></textarea>
           </div>
 
           <div class="form-row mt-md">
@@ -450,32 +453,32 @@
               可用變數（拖曳插入）
             </div>
             <div class="variable-list" id="variable-list">
-              <div class="variable-item" draggable="true" data-variable="{{ keyword }}">
-                <span class="variable-tag">{{ keyword }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{keyword}}">
+                <span class="variable-tag">{{keyword}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ title }}">
-                <span class="variable-tag">{{ title }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{title}}">
+                <span class="variable-tag">{{title}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ direction }}">
-                <span class="variable-tag">{{ direction }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{author_background}}">
+                <span class="variable-tag">{{author_background}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ material }}">
-                <span class="variable-tag">{{ material }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{article_instruction}}">
+                <span class="variable-tag">{{article_instruction}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ tone }}">
-                <span class="variable-tag">{{ tone }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{當前年份}}">
+                <span class="variable-tag">{{當前年份}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ word_count }}">
-                <span class="variable-tag">{{ word_count }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{明年}}">
+                <span class="variable-tag">{{明年}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
-              <div class="variable-item" draggable="true" data-variable="{{ language }}">
-                <span class="variable-tag">{{ language }}</span>
+              <div class="variable-item" draggable="true" data-variable="{{去年}}">
+                <span class="variable-tag">{{去年}}</span>
                 <span class="drag-handle">&#8942;&#8942;</span>
               </div>
             </div>
@@ -624,6 +627,9 @@
         <nav class="app-nav">
           <span class="app-nav-link" data-nav="dashboard">主控台</span>
           <span class="app-nav-link active" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link" data-nav="schedule">排程</span>
+          <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn-logs" title="使用者選單">U</div>
@@ -776,6 +782,286 @@
       </div>
     </div>
   </div>
+
+  <!-- ============================================================
+       PAGE: Schedule
+       ============================================================ -->
+  <section class="page page-schedule" data-page="schedule">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link active" data-nav="schedule">排程</span>
+          <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn-schedule" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown-schedule">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username-schedule">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal-schedule">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal-schedule">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout-schedule" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="logs-content">
+      <!-- Toolbar -->
+      <div class="logs-toolbar">
+        <div class="logs-search">
+          <span class="logs-search-icon">&#128269;</span>
+          <input class="form-input" type="text" id="schedule-search-input" placeholder="搜尋關鍵字或標題...">
+        </div>
+        <div class="logs-filters">
+          <select class="form-select" id="schedule-filter-status" style="width: auto; min-width: 130px;">
+            <option value="">全部狀態</option>
+            <option value="pending">待執行</option>
+            <option value="processing">執行中</option>
+            <option value="completed">已完成</option>
+            <option value="failed">失敗</option>
+            <option value="cancelled">已取消</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-schedule">重新整理</button>
+          <button class="btn btn-primary btn-sm" id="btn-open-schedule-modal">&#43; 新增排程</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="overflow:hidden;">
+        <table class="data-table" id="schedule-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>關鍵字</th>
+              <th>標題</th>
+              <th>排程時間</th>
+              <th>狀態</th>
+              <th>建立時間</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-table-body"></tbody>
+        </table>
+        <div class="empty-state" id="schedule-empty" style="padding: var(--space-2xl);">
+          <p>目前沒有排程發文</p>
+          <p class="text-secondary" style="font-size: var(--text-sm);">按右上角「&#43; 新增排程」加入第一筆</p>
+        </div>
+      </div>
+      <div class="pagination" id="schedule-pagination"></div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="schedule-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:center; justify-content:center; padding:var(--space-lg);">
+      <div style="background:var(--bg-primary); border-radius:var(--radius-lg); max-width:560px; width:100%; max-height:90vh; overflow-y:auto; border:1px solid var(--border-default);">
+        <div style="padding:var(--space-md) var(--space-lg); border-bottom:1px solid var(--border-default); display:flex; align-items:center; justify-content:space-between;">
+          <h3 id="schedule-modal-title" style="font-size:var(--text-base); margin:0;">新增排程</h3>
+          <button class="btn btn-sm btn-ghost" id="btn-close-schedule-modal">&times;</button>
+        </div>
+        <div style="padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md);">
+          <input type="hidden" id="schedule-modal-id">
+          <div class="form-group">
+            <label class="form-label" for="modal-keyword">關鍵字 <span style="color:var(--color-error)">*</span></label>
+            <input class="form-input" type="text" id="modal-keyword" placeholder="主要 SEO 關鍵字">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-title">標題（選填）</label>
+            <input class="form-input" type="text" id="modal-title" placeholder="留空由 AI 自動產生">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-author-background">作者背景（選填）</label>
+            <input class="form-input" type="text" id="modal-author-background" placeholder="例如：10年網頁設計師、擁有電商品牌的創業者...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-scheduled-at">排程時間 <span style="color:var(--color-error)">*</span></label>
+            <input class="form-input" type="datetime-local" id="modal-scheduled-at">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-instruction">本篇指令 *</label>
+            <textarea class="form-input" id="modal-instruction" rows="4" placeholder="包含內容方向＋必答重點＋目標讀者＋限制"></textarea>
+          </div>
+        </div>
+        <div style="padding:0 var(--space-lg) var(--space-lg); display:flex; justify-content:flex-end; gap:var(--space-sm);">
+          <button class="btn btn-secondary" id="btn-cancel-schedule-modal">取消</button>
+          <button class="btn btn-primary" id="btn-save-schedule-modal">儲存</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PAGE: Keywords -->
+  <section class="page page-keywords" data-page="keywords">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link" data-nav="schedule">排程</span>
+          <span class="app-nav-link active" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn-keywords" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown-keywords">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username-keywords">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal-keywords">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal-keywords">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout-keywords" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="logs-content">
+      <div class="card-header">
+        <h2>已使用關鍵字</h2>
+        <p>查看所有 WordPress 文章中已使用的 SEO 關鍵字，避免重複發文。</p>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="logs-toolbar">
+        <div class="logs-search">
+          <span class="logs-search-icon">&#128269;</span>
+          <input class="form-input" type="text" id="keywords-search-input" placeholder="搜尋關鍵字...">
+        </div>
+        <div class="logs-filters">
+          <span class="text-secondary" style="font-size: var(--text-sm);">共 <strong id="keywords-total-posts">0</strong> 篇文章</span>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-keywords">重新整理</button>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="keywords-loading" class="loading-overlay" style="display:none;">
+        <div class="spinner spinner-lg"></div>
+        <span>正在從 WordPress 載入關鍵字...</span>
+      </div>
+
+      <!-- Error state -->
+      <div id="keywords-error" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">&#9888;</div>
+        <h3 id="keywords-error-msg">載入失敗</h3>
+        <p>請確認 WordPress 設定是否正確。</p>
+      </div>
+
+      <!-- Keywords table -->
+      <div class="data-table-wrapper" id="keywords-table-wrapper">
+        <table class="data-table" id="keywords-table">
+          <thead>
+            <tr>
+              <th style="width:100px;">日期</th>
+              <th>文章標題</th>
+              <th style="width:200px;">主關鍵字</th>
+              <th style="width:80px;">狀態</th>
+            </tr>
+          </thead>
+          <tbody id="keywords-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Empty state -->
+      <div id="keywords-empty" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">&#127991;</div>
+        <h3>尚無文章資料</h3>
+        <p>找不到符合條件的文章。</p>
+      </div>
+    </main>
+
+  </section>
+
+  <!-- PAGE: Keyword Research -->
+  <section class="page page-keyword-research" data-page="keyword-research">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link" data-nav="schedule">排程</span>
+          <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link active" data-nav="keyword-research">關鍵字研究</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn-kwresearch" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown-kwresearch">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username-kwresearch">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal-kwresearch">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal-kwresearch">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout-kwresearch" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="logs-content">
+      <div class="card-header">
+        <h2>關鍵字研究</h2>
+        <p>輸入主要關鍵字，自動搜尋相關的長尾關鍵字建議（Google Autocomplete 多變體查詢，完全免費）。</p>
+      </div>
+
+      <!-- Search Section -->
+      <div class="card mb-lg">
+        <div class="kw-research-input-row">
+          <input class="form-input" type="text" id="kw-research-input" placeholder="輸入主要關鍵字，例如：SEO 優化" style="flex:1; font-size: var(--text-base);">
+          <button class="btn btn-primary" id="btn-kw-research" style="white-space:nowrap;">
+            開始研究
+          </button>
+        </div>
+        <p class="text-secondary" style="font-size: var(--text-xs); margin-top: var(--space-sm);">
+          透過 Google Autocomplete 多種查詢變體，找出最相關的長尾關鍵字
+        </p>
+      </div>
+
+      <!-- Loading state -->
+      <div id="kw-research-loading" class="loading-overlay" style="display:none;">
+        <div class="spinner spinner-lg"></div>
+        <span id="kw-research-loading-text">正在搜尋關鍵字建議...</span>
+      </div>
+
+      <!-- Results -->
+      <div id="kw-research-results" style="display:none;">
+        <div class="flex items-center justify-between mb-md">
+          <h3 style="font-size: var(--text-base);">「<span id="kw-research-seed"></span>」的長尾關鍵字建議</h3>
+          <div class="flex gap-sm">
+            <span class="badge badge-info" id="kw-research-source-badge">0 個建議</span>
+            <button class="btn btn-sm btn-secondary" id="btn-kw-copy-all">複製全部</button>
+          </div>
+        </div>
+        <div id="kw-research-grid" class="kw-results-grid"></div>
+      </div>
+
+      <!-- Empty/idle state -->
+      <div id="kw-research-idle" class="empty-state">
+        <div class="empty-state-icon">&#128269;</div>
+        <h3>輸入關鍵字開始研究</h3>
+        <p>系統將自動搜尋 Google 建議並使用 AI 分析，找出適合的長尾關鍵字。</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="kw-research-error" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">&#9888;</div>
+        <h3 id="kw-research-error-msg">搜尋失敗</h3>
+        <p>請稍後再試。</p>
+      </div>
+    </main>
+
+  </section>
 
   <!-- Scripts -->
   <script src="js/app.js"></script>

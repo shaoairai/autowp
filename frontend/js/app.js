@@ -15,89 +15,77 @@
   // ---------------------------------------------------------------------------
   // Default Prompt (from optimized_prompt.md v6.0)
   // ---------------------------------------------------------------------------
-  var DEFAULT_PROMPT = [
-    '# ROLE',
-    '你是一位擁有 10 年經驗的 SEO 內容策略專家與 AI Agent。你專精 Google E-E-A-T 原則、Rank Math SEO 優化、搜尋意圖分析，以及 2025-2026 年最新 SEO 趨勢。你只用繁體中文撰寫內容。你產出的 HTML 必須完全相容 WordPress Gutenberg 區塊編輯器格式。',
-    '',
-    '你是一個 Agent：請先分析關鍵字的搜尋意圖（資訊型/交易型/導航型/商業調查型），再決定文章的結構與語氣。',
-    '',
-    '# INPUT',
-    '- 關鍵字: {{ keyword }}',
-    '- 標題: {{ title }}',
-    '- 方向: {{ direction }}',
-    '- 個人經驗/素材: {{ material }}',
-    '- 語氣風格: {{ tone }}',
-    '- 目標字數: {{ word_count }}',
-    '- CTA 內容: {{ language }}',
-    '',
-    '# AGENT 思考步驟（Chain of Thought）',
-    '1. **搜尋意圖分析**：判斷此關鍵字屬於 informational / transactional / navigational / commercial investigation 哪種類型',
-    '2. **目標讀者畫像**：判斷目標讀者的知識水準、痛點與需求',
-    '3. **競爭內容分析**：思考目前搜尋結果前 10 名可能涵蓋的內容，找出差異化角度',
-    '4. **語義關鍵字拓展**：列出 LSI（Latent Semantic Indexing）相關詞彙與長尾關鍵字',
-    '5. **文章結構規劃**：決定最佳的 H2/H3 層級結構，確保涵蓋主題群集（Topic Cluster）',
-    '6. **E-E-A-T 融入策略**：規劃如何展現經驗、專業、權威、可信度',
-    '7. **撰寫高品質內容**：結合以上分析產出內容',
-    '8. **Rank Math SEO 欄位填寫**：最佳化所有 SEO 欄位',
-    '',
-    '# RULES',
-    '',
-    '## 一、E-E-A-T 內容品質規則（2025-2026 最新）',
-    '1. **Experience（經驗）**：若有提供「個人經驗/素材」，必須自然融入文章中，以第一人稱敘述增加真實感。即使沒有素材，也應以「實際操作過的專家」角度撰寫，展現第一手經驗',
-    '2. **Expertise（專業）**：內容必須有深度，提供可操作的具體建議，而非表面泛泛而談。引用數據、研究、案例來支撐論點',
-    '3. **Authoritativeness（權威）**：使用確定性語氣，避免「可能」「也許」等模糊用語。在適當處引用權威來源',
-    '4. **Trustworthiness（可信度）**：資訊必須準確、最新。若涉及 YMYL（Your Money Your Life）主題，需格外嚴謹',
-    '',
-    '## 二、內容結構與可讀性規則',
-    '5. 段落控制 2-4 句，每 250-350 字換一個 H2 或 H3，確保閱讀節奏',
-    '6. 關鍵字密度 1-2%，自然融入上下文，同段不超過 2 次。同時融入 LSI 語義相關詞',
-    '7. 列舉用 Gutenberg 列表區塊，比較用 Gutenberg 表格區塊，步驟用有序列表',
-    '8. 結尾加 FAQ（至少 3 題，使用 H3 + P 直接展開格式，不使用 details/summary 收合）和 CTA',
-    '9. 標點使用全形，中英文與數字之間不加空格',
-    '10. 適當使用 `<strong>` 標記重要關鍵詞（每段最多 1-2 個），有助 SEO 但避免過度使用',
-    '',
-    '## 三、2025-2026 SEO 最佳實踐',
-    '11. **搜尋意圖優先**：內容必須精準匹配使用者搜尋意圖，而非只是塞滿關鍵字',
-    '12. **主題群集策略**：文章應涵蓋該主題的完整面向，建立主題權威性（Topical Authority）',
-    '13. **語義搜尋優化**：自然融入語義相關詞彙、同義詞、相關問題，幫助搜尋引擎理解內容深度',
-    '14. **AI Overview 優化**：結構化的問答格式、清晰的定義段落、列表式重點，有助於被 Google AI Overview 引用',
-    '15. **語音搜尋友善**：FAQ 問題使用自然口語化的完整問句，答案開頭直接回答問題',
-    '16. **Core Web Vitals 友善**：HTML 結構簡潔乾淨，避免不必要的巢狀標籤，確保頁面載入效能',
-    '17. **內部連結策略提示**：在文章中標註 2-3 處適合放置內部連結的位置（用 `[內部連結建議: 相關主題描述]` 標記）',
-    '',
-    '## 四、WordPress Gutenberg 區塊格式規則（重要！）',
-    '所有 HTML 輸出必須嚴格使用 WordPress Gutenberg 區塊格式。',
-    '',
-    '## 五、FAQ 區塊格式（不使用 details/summary 收合）',
-    'FAQ 必須使用 H3 標題 + 段落的直接展開格式。',
-    '',
-    '# OUTPUT STRUCTURE',
-    '1. **開場段落**（痛點共鳴 + 解決方案預告 + 為什麼這篇文章值得讀）',
-    '2. **TL;DR 摘要**（3-5 點重點摘要）',
-    '3. **H2/H3 章節內容**（{{ word_count }}+ 字，至少 4 個 H2 段落）',
-    '4. **FAQ 區塊**（至少 3 題，H3 + P 直接展開格式）',
-    '5. **CTA 段落**（明確的行動呼籲）',
-    '',
-    '# RANK MATH SEO 欄位要求',
-    '- seo_title: 含關鍵字的吸睛標題，50-60 字元',
-    '- seo_description: 含關鍵字的 Meta 描述，150-160 字元',
-    '- focus_keyword: 主要關鍵字',
-    '- secondary_keywords: 3-5 個相關長尾關鍵字',
-    '',
-    '# JSON OUTPUT FORMAT',
-    '{',
-    '  "title": "文章標題",',
-    '  "slug": "english-slug-with-keyword",',
-    '  "content": "完整 Gutenberg 格式 HTML 文章",',
-    '  "excerpt": "文章摘要 100-150 字",',
-    '  "seo": {',
-    '    "title": "SEO 標題",',
-    '    "description": "Meta 描述",',
-    '    "focus_keyword": "主要關鍵字",',
-    '    "secondary_keywords": "長尾關鍵字1, 長尾關鍵字2, 長尾關鍵字3"',
-    '  }',
-    '}',
-  ].join('\n');
+  var DEFAULT_PROMPT = '# ROLE\n' +
+'你是一位擁有10年經驗的SEO內容策略專家與AI Agent，專精Google E-E-A-T、Rank Math SEO、搜尋意圖分析，以及{{當前年份}}年最新SEO趨勢。全程只用繁體中文撰寫內容。輸出必須為完全相容WordPress Gutenberg區塊編輯器的HTML（包含區塊註解）。\n' +
+'\n' +
+'重要：現在是{{當前年份}}年。文章中任何提到年份的地方，「今年」= {{當前年份}}、「明年」= {{明年}}、「去年」= {{去年}}。標題、內容、SEO欄位中出現年份都必須正確反映時間。\n' +
+'\n' +
+'你是一個Agent：必須先分析關鍵字搜尋意圖（資訊型/交易型/導航型/商業調查型），再決定文章的結構、段落順序與內容深度。文章必須緊扣主要關鍵字與本篇指令，不可跑題。\n' +
+'\n' +
+'# INPUT（你只能使用以下輸入，不可自行假設未提供的商業資訊或虛構可驗證的案例/數字/客戶名稱）\n' +
+'- 主要關鍵字：{{keyword}}\n' +
+'- 文章標題（選填；若空白，請依搜尋意圖生成最適合且不跑題的標題，必要時可包含年份）：{{title}}\n' +
+'- 作者背景（固定可調參數；用於E-E-A-T與作者視角，但不得喧賓奪主）：{{author_background}}\n' +
+'- 本篇指令（融合欄位：包含內容方向＋必答重點＋讀者＋限制；必須嚴格遵守）：{{article_instruction}}\n' +
+'\n' +
+'# 固定寫作設定（不可更改）\n' +
+'- 語氣風格：專業顧問感、直接、可執行、避免空話\n' +
+'- 目標字數：至少2000字（可略多但不要灌水）\n' +
+'- CTA內容：由你根據搜尋意圖與文章內容自行設計，務必明確、可行動、與本文一致\n' +
+'\n' +
+'# AGENT 任務步驟（強制順序）\n' +
+'1) 搜尋意圖分析：判斷主要關鍵字意圖，並用1句話說明「使用者此刻最想得到什麼」。\n' +
+'2) 目標讀者畫像：用3點描述讀者痛點、擔心、決策障礙（必須貼合本篇指令）。\n' +
+'3) 語義關鍵字拓展：列出LSI相關詞與長尾關鍵字（至少12個），後續要自然融入。\n' +
+'4) 文章結構規劃：先輸出H2/H3大綱（至少4個H2），並在每個H2後用【目的：解惑/比較/轉換/信任】標註其作用；大綱必須覆蓋本篇指令中的所有必答點。\n' +
+'5) 撰寫全文：依大綱寫出全文（>=2000字），符合下列規則。\n' +
+'6) Rank Math SEO欄位：輸出SEO title/description/focus keyword。\n' +
+'\n' +
+'# E-E-A-T 內容品質規則（{{當前年份}}最新）\n' +
+'- Experience（經驗）：以第一人稱寫作，至少插入2段「實務情境」描述。不得虛構可驗證的數字、客戶名稱、專案細節；若沒有素材，使用「常見實務情境」敘述。\n' +
+'- Expertise（專業）：內容必須有深度與可操作性，提供步驟、檢核清單、決策準則、比較表，不可只講概念。\n' +
+'- Authoritativeness（權威）：用確定性語氣，避免「可能」「也許」等模糊措辭。首次出現的專有名詞必須加上權威來源超連結，同一名詞僅首次加連結。\n' +
+'- Trustworthiness（可信度）：資訊必須準確、最新。不捏造統計數字。\n' +
+'\n' +
+'# 內容結構與可讀性規則\n' +
+'- 段落控制2-4句；每250-350字至少出現一個H2或H3。\n' +
+'- 主要關鍵字密度1-2%，自然融入上下文；同段不超過2次；同時融入LSI語義相關詞。\n' +
+'- 列舉用Gutenberg列表區塊；步驟用有序列表；比較優先用Gutenberg表格區塊。\n' +
+'- 結尾必須包含FAQ（至少3題，使用H3+P直接展開，不使用details/summary）與CTA段落。\n' +
+'- 標點使用全形；中英文與數字之間不加空格。\n' +
+'- 每段最多1-2個<strong>，避免過度。\n' +
+'\n' +
+'# WordPress Gutenberg 區塊格式規則（重要）\n' +
+'所有HTML輸出必須嚴格使用WordPress Gutenberg區塊格式。\n' +
+'\n' +
+'<!-- wp:heading {"level":2} -->\n' +
+'<h2 class="wp-block-heading">H2標題</h2>\n' +
+'<!-- /wp:heading -->\n' +
+'\n' +
+'<!-- wp:paragraph -->\n' +
+'<p>段落內容。</p>\n' +
+'<!-- /wp:paragraph -->\n' +
+'\n' +
+'# Unsplash 圖片規則（每個H2章節結尾必插入1張）\n' +
+'圖片來源：https://source.unsplash.com/1600x900/?{英文關鍵字1},{英文關鍵字2}\n' +
+'圖片alt必須等於該H2標題文字（完全一致）。\n' +
+'\n' +
+'<!-- wp:image {"sizeSlug":"large"} -->\n' +
+'<figure class="wp-block-image size-large"><img src="https://source.unsplash.com/1600x900/?seo,content" alt="H2標題文字"/></figure>\n' +
+'<!-- /wp:image -->\n' +
+'\n' +
+'# OUTPUT（JSON格式；禁止輸出任何額外說明文字）\n' +
+'{\n' +
+'  "title": "文章標題",\n' +
+'  "slug": "english-slug-with-keyword",\n' +
+'  "content": "完整Gutenberg格式HTML文章",\n' +
+'  "excerpt": "文章摘要100-150字",\n' +
+'  "seo": {\n' +
+'    "title": "SEO標題（必須與title完全一致）",\n' +
+'    "description": "Meta描述150-160字元，必須包含主要關鍵字",\n' +
+'    "focus_keyword": "主要關鍵字（只填1個）"\n' +
+'  }\n' +
+'}';
 
   // ---------------------------------------------------------------------------
   // Utilities
@@ -355,6 +343,12 @@
         PromptEditor.init();
       } else if (page === 'logs') {
         Logs.load(1);
+      } else if (page === 'schedule') {
+        Schedule.load(1);
+      } else if (page === 'keywords') {
+        Keywords.load();
+      } else if (page === 'keyword-research') {
+        KeywordResearch.init();
       }
     },
 
@@ -607,16 +601,27 @@
       var prompt = this.getPrompt();
       var keyword = $('#article-keyword').value.trim();
       var title = $('#article-title').value.trim() || keyword;
-      var direction = $('#article-direction').value.trim() || '無';
-      var material = $('#article-material').value.trim() || '無';
+      var authorBg = $('#article-author-background').value.trim() || '無';
+      var instruction = $('#article-instruction').value.trim() || '無';
 
+      var now = new Date();
+      var currentYear = now.getFullYear();
+
+      // New variable names
       prompt = prompt.replace(/\{\{\s*keyword\s*\}\}/g, keyword);
       prompt = prompt.replace(/\{\{\s*title\s*\}\}/g, title);
-      prompt = prompt.replace(/\{\{\s*direction\s*\}\}/g, direction);
-      prompt = prompt.replace(/\{\{\s*material\s*\}\}/g, material);
-      prompt = prompt.replace(/\{\{\s*tone\s*\}\}/g, '專業且親切');
-      prompt = prompt.replace(/\{\{\s*word_count\s*\}\}/g, '1500');
-      prompt = prompt.replace(/\{\{\s*language\s*\}\}/g, '通用型 CTA');
+      prompt = prompt.replace(/\{\{\s*author_background\s*\}\}/g, authorBg);
+      prompt = prompt.replace(/\{\{\s*article_instruction\s*\}\}/g, instruction);
+      // Year variables
+      prompt = prompt.replace(/\{\{當前年份\}\}/g, String(currentYear));
+      prompt = prompt.replace(/\{\{明年\}\}/g, String(currentYear + 1));
+      prompt = prompt.replace(/\{\{去年\}\}/g, String(currentYear - 1));
+      // Legacy variable names (backwards compat for old saved prompts)
+      prompt = prompt.replace(/\{\{\s*direction\s*\}\}/g, authorBg);
+      prompt = prompt.replace(/\{\{\s*material\s*\}\}/g, instruction);
+      prompt = prompt.replace(/\{\{\s*tone\s*\}\}/g, '專業顧問感');
+      prompt = prompt.replace(/\{\{\s*word_count\s*\}\}/g, '2000');
+      prompt = prompt.replace(/\{\{\s*language\s*\}\}/g, '由AI自行設計');
       return prompt;
     },
   };
@@ -699,8 +704,8 @@
       var data = {
         keyword: keyword,
         title: $('#article-title').value.trim() || undefined,
-        direction: $('#article-direction').value.trim() || undefined,
-        material: $('#article-material').value.trim() || undefined,
+        author_background: $('#article-author-background').value.trim() || undefined,
+        article_instruction: $('#article-instruction').value.trim() || undefined,
         custom_prompt: PromptEditor.buildFinalPrompt(),
       };
 
@@ -1216,6 +1221,452 @@
   };
 
   // ---------------------------------------------------------------------------
+  // Schedule Module
+  // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Schedule Module
+  // ---------------------------------------------------------------------------
+  var Schedule = {
+    currentPage: 1,
+    currentSearch: '',
+    currentFilter: '',
+
+    load: function (page) {
+      this.currentPage = page || 1;
+      var params = '?page=' + this.currentPage + '&per_page=20';
+      if (this.currentSearch) params += '&search=' + encodeURIComponent(this.currentSearch);
+      if (this.currentFilter) params += '&status=' + encodeURIComponent(this.currentFilter);
+
+      Api.call('GET', '/schedule' + params)
+        .then(function (res) {
+          Schedule._renderTable(res.items || []);
+          Schedule._renderPagination(res.page, res.pages, res.total);
+        })
+        .catch(function (err) {
+          Toast.show('載入排程失敗: ' + err.message, 'error');
+        });
+    },
+
+    openAddModal: function () {
+      $('#schedule-modal-id').value = '';
+      $('#modal-keyword').value = '';
+      $('#modal-title').value = '';
+      $('#modal-author-background').value = '';
+      $('#modal-instruction').value = '';
+      $('#modal-scheduled-at').value = '';
+      $('#schedule-modal-title').textContent = '新增排程';
+      $('#btn-save-schedule-modal').textContent = '新增';
+      var overlay = $('#schedule-modal-overlay');
+      overlay.style.display = 'flex';
+    },
+
+    openEditModal: function (item) {
+      $('#schedule-modal-id').value = item.id;
+      $('#modal-keyword').value = item.keyword || '';
+      $('#modal-title').value = item.title || '';
+      $('#modal-author-background').value = item.direction || '';
+      $('#modal-instruction').value = item.material || '';
+      if (item.scheduled_at) {
+        var d = new Date(item.scheduled_at);
+        var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+        var local = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+          'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        $('#modal-scheduled-at').value = local;
+      } else {
+        $('#modal-scheduled-at').value = '';
+      }
+      $('#schedule-modal-title').textContent = '修改排程';
+      $('#btn-save-schedule-modal').textContent = '儲存修改';
+      var overlay = $('#schedule-modal-overlay');
+      overlay.style.display = 'flex';
+    },
+
+    closeModal: function () {
+      var overlay = $('#schedule-modal-overlay');
+      if (overlay) overlay.style.display = 'none';
+    },
+
+    saveModal: function () {
+      var keyword = ($('#modal-keyword').value || '').trim();
+      var scheduledAt = $('#modal-scheduled-at').value;
+      var id = $('#schedule-modal-id').value;
+
+      if (!keyword) { Toast.show('請填寫關鍵字', 'warning'); return; }
+      if (!scheduledAt) { Toast.show('請選擇排程時間', 'warning'); return; }
+
+      var data = {
+        keyword: keyword,
+        title: ($('#modal-title').value || '').trim() || null,
+        author_background: ($('#modal-author-background').value || '').trim() || null,
+        article_instruction: ($('#modal-instruction').value || '').trim() || null,
+        scheduled_at: new Date(scheduledAt).toISOString(),
+      };
+
+      var saveBtn = $('#btn-save-schedule-modal');
+      saveBtn.disabled = true;
+
+      var req = id
+        ? Api.call('PUT', '/schedule/' + id, data)
+        : Api.call('POST', '/schedule', data);
+
+      req.then(function () {
+          Toast.show(id ? '排程已更新' : '排程已新增', 'success');
+          Schedule.closeModal();
+          Schedule.load(Schedule.currentPage);
+        })
+        .catch(function (err) {
+          Toast.show((id ? '更新' : '新增') + '失敗: ' + err.message, 'error');
+        })
+        .then(function () {
+          saveBtn.disabled = false;
+        });
+    },
+
+    delete: function (id) {
+      if (!confirm('確定刪除此排程？')) return;
+      Api.call('DELETE', '/schedule/' + id)
+        .then(function () {
+          Toast.show('排程已刪除', 'success');
+          Schedule.load(Schedule.currentPage);
+        })
+        .catch(function (err) {
+          Toast.show('刪除失敗: ' + err.message, 'error');
+        });
+    },
+
+    _renderTable: function (items) {
+      var tbody = $('#schedule-table-body');
+      var empty = $('#schedule-empty');
+      if (!tbody) return;
+
+      if (!items.length) {
+        tbody.innerHTML = '';
+        if (empty) empty.classList.remove('hidden');
+        return;
+      }
+      if (empty) empty.classList.add('hidden');
+
+      var statusBadge = function (status) {
+        var map = {
+          pending:    '<span class="badge badge-default">待執行</span>',
+          processing: '<span class="badge badge-info">執行中</span>',
+          completed:  '<span class="badge badge-success">已完成</span>',
+          failed:     '<span class="badge badge-error">失敗</span>',
+          cancelled:  '<span class="badge badge-warning">已取消</span>',
+        };
+        return map[status] || '<span class="badge badge-default">' + Utils.escapeHtml(status) + '</span>';
+      };
+
+      var itemMap = {};
+      items.forEach(function (item) { itemMap[item.id] = item; });
+
+      tbody.innerHTML = items.map(function (item, idx) {
+        var isPending = item.status === 'pending';
+        var canDelete = isPending || item.status === 'cancelled';
+        var actions = '';
+        if (isPending) {
+          actions += '<button class="btn btn-sm btn-ghost" data-edit-schedule="' + item.id + '" style="margin-right:4px;">編輯</button>';
+        }
+        if (canDelete) {
+          actions += '<button class="btn btn-sm btn-ghost" data-delete-schedule="' + item.id + '" style="color:var(--color-error);">刪除</button>';
+        }
+        if (!actions) actions = '-';
+
+        return '<tr>' +
+          '<td>' + ((Schedule.currentPage - 1) * 20 + idx + 1) + '</td>' +
+          '<td>' + Utils.escapeHtml(item.keyword || '-') + '</td>' +
+          '<td class="truncate" style="max-width:180px;">' + Utils.escapeHtml(item.title || '-') + '</td>' +
+          '<td>' + Utils.formatDate(item.scheduled_at) + '</td>' +
+          '<td>' + statusBadge(item.status) + '</td>' +
+          '<td>' + Utils.formatDate(item.created_at) + '</td>' +
+          '<td style="white-space:nowrap;">' + actions + '</td>' +
+        '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('[data-edit-schedule]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var item = itemMap[parseInt(this.getAttribute('data-edit-schedule'), 10)];
+          if (item) Schedule.openEditModal(item);
+        });
+      });
+      tbody.querySelectorAll('[data-delete-schedule]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          Schedule.delete(parseInt(this.getAttribute('data-delete-schedule'), 10));
+        });
+      });
+    },
+
+    _renderPagination: function (page, pages, total) {
+      var container = $('#schedule-pagination');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!pages || pages <= 1) return;
+
+      var prevBtn = document.createElement('button');
+      prevBtn.className = 'pagination-btn';
+      prevBtn.innerHTML = '&laquo;';
+      prevBtn.disabled = page <= 1;
+      prevBtn.addEventListener('click', function () { Schedule.load(page - 1); });
+      container.appendChild(prevBtn);
+
+      for (var i = 1; i <= pages; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'pagination-btn' + (i === page ? ' active' : '');
+        btn.textContent = i;
+        btn.addEventListener('click', (function (p) {
+          return function () { Schedule.load(p); };
+        })(i));
+        container.appendChild(btn);
+      }
+
+      var nextBtn = document.createElement('button');
+      nextBtn.className = 'pagination-btn';
+      nextBtn.innerHTML = '&raquo;';
+      nextBtn.disabled = page >= pages;
+      nextBtn.addEventListener('click', function () { Schedule.load(page + 1); });
+      container.appendChild(nextBtn);
+    },
+  };
+
+  // ---------------------------------------------------------------------------
+  // Keywords Module
+  // ---------------------------------------------------------------------------
+  var Keywords = {
+    data: null,
+    searchTerm: '',
+
+    load: function () {
+      var tbody = $('#keywords-table-body');
+      var wrapper = $('#keywords-table-wrapper');
+      var loading = $('#keywords-loading');
+      var empty = $('#keywords-empty');
+      var errorEl = $('#keywords-error');
+
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      if (wrapper) wrapper.style.display = 'none';
+      if (empty) empty.style.display = 'none';
+      if (errorEl) errorEl.style.display = 'none';
+      if (loading) loading.style.display = 'flex';
+
+      Api.call('GET', '/keywords/wp-keywords')
+        .then(function (res) {
+          Keywords.data = res;
+          if (loading) loading.style.display = 'none';
+          var totalPosts = $('#keywords-total-posts');
+          if (totalPosts) totalPosts.textContent = res.total || 0;
+          Keywords._render();
+        })
+        .catch(function (err) {
+          if (loading) loading.style.display = 'none';
+          if (errorEl) {
+            errorEl.style.display = 'flex';
+            var msg = $('#keywords-error-msg');
+            if (msg) msg.textContent = err.message || '載入失敗';
+          }
+          Toast.show('載入關鍵字失敗: ' + err.message, 'error');
+        });
+    },
+
+    _render: function () {
+      var tbody = $('#keywords-table-body');
+      var wrapper = $('#keywords-table-wrapper');
+      var empty = $('#keywords-empty');
+      if (!tbody || !this.data) return;
+
+      var posts = this.data.posts || [];
+      var search = this.searchTerm.toLowerCase();
+
+      if (search) {
+        posts = posts.filter(function (p) {
+          return (p.title || '').toLowerCase().indexOf(search) !== -1 ||
+                 (p.keyword || '').toLowerCase().indexOf(search) !== -1;
+        });
+      }
+
+      if (!posts.length) {
+        tbody.innerHTML = '';
+        if (wrapper) wrapper.style.display = 'none';
+        if (empty) empty.style.display = 'flex';
+        return;
+      }
+
+      if (wrapper) wrapper.style.display = '';
+      if (empty) empty.style.display = 'none';
+
+      tbody.innerHTML = posts.map(function (p) {
+        var statusLabel = p.status === 'publish' ? '已發佈' : '草稿';
+        var statusClass = p.status === 'publish' ? 'color:var(--color-success)' : 'color:var(--color-warning)';
+        var titleHtml = p.link
+          ? '<a href="' + Utils.escapeHtml(p.link) + '" target="_blank" style="color:var(--text-primary);text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' + Utils.escapeHtml(p.title || '(無標題)') + '</a>'
+          : Utils.escapeHtml(p.title || '(無標題)');
+        var kwHtml = p.keyword
+          ? '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+              '<span>' + Utils.escapeHtml(p.keyword) + '</span>' +
+              '<button class="btn btn-sm btn-ghost" style="padding:2px 6px;font-size:11px;" data-row-research="' + Utils.escapeHtml(p.keyword) + '" title="研究此關鍵字">研究</button>' +
+              '<button class="btn btn-sm btn-ghost" style="padding:2px 6px;font-size:11px;" data-row-generate="' + Utils.escapeHtml(p.keyword) + '" title="用此關鍵字產文">產文</button>' +
+            '</span>'
+          : '<span style="color:var(--text-tertiary);font-style:italic;">無</span>';
+        return '<tr>' +
+          '<td style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);">' + Utils.escapeHtml(p.date || '') + '</td>' +
+          '<td>' + titleHtml + '</td>' +
+          '<td>' + kwHtml + '</td>' +
+          '<td style="' + statusClass + ';font-size:12px;">' + statusLabel + '</td>' +
+        '</tr>';
+      }).join('');
+
+      // Bind quick-action buttons
+      tbody.querySelectorAll('[data-row-research]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var kw = this.getAttribute('data-row-research');
+          Router.navigate('keyword-research');
+          setTimeout(function () {
+            var input = $('#kw-research-input');
+            if (input) {
+              input.value = kw;
+              KeywordResearch.search();
+            }
+          }, 100);
+        });
+      });
+      tbody.querySelectorAll('[data-row-generate]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var kw = this.getAttribute('data-row-generate');
+          Router.navigate('dashboard');
+          setTimeout(function () {
+            Tabs.switchTo('step2');
+            var input = $('#article-keyword');
+            if (input) input.value = kw;
+          }, 100);
+        });
+      });
+    },
+  };
+
+  // ---------------------------------------------------------------------------
+  // Keyword Research Module
+  // ---------------------------------------------------------------------------
+  var KeywordResearch = {
+    lastResults: null,
+
+    init: function () {
+      // No-op; page is already rendered in HTML
+    },
+
+    search: function () {
+      var input = $('#kw-research-input');
+      var keyword = input ? input.value.trim() : '';
+      if (!keyword) {
+        Toast.show('請輸入關鍵字', 'warning');
+        return;
+      }
+
+      var loading = $('#kw-research-loading');
+      var results = $('#kw-research-results');
+      var idle = $('#kw-research-idle');
+      var errorEl = $('#kw-research-error');
+      var searchBtn = $('#btn-kw-research');
+
+      if (idle) idle.style.display = 'none';
+      if (errorEl) errorEl.style.display = 'none';
+      if (results) results.style.display = 'none';
+      if (loading) loading.style.display = 'flex';
+      if (searchBtn) searchBtn.disabled = true;
+
+      Api.call('POST', '/keywords/research', { keyword: keyword })
+        .then(function (res) {
+          KeywordResearch.lastResults = res;
+          KeywordResearch.lastResults._keyword = keyword;
+          if (loading) loading.style.display = 'none';
+          if (searchBtn) searchBtn.disabled = false;
+          KeywordResearch._renderResults(res, keyword);
+        })
+        .catch(function (err) {
+          if (loading) loading.style.display = 'none';
+          if (searchBtn) searchBtn.disabled = false;
+          if (errorEl) {
+            errorEl.style.display = 'flex';
+            var msg = $('#kw-research-error-msg');
+            if (msg) msg.textContent = err.message || '搜尋失敗';
+          }
+          Toast.show('關鍵字研究失敗: ' + err.message, 'error');
+        });
+    },
+
+    _renderResults: function (res, keyword) {
+      var results = $('#kw-research-results');
+      var gridEl = $('#kw-research-grid');
+      var seedEl = $('#kw-research-seed');
+      var badgeEl = $('#kw-research-source-badge');
+
+      if (!results || !gridEl) return;
+
+      var sources = res.sources || {};
+      var keywords = res.keywords || [];
+
+      if (seedEl) seedEl.textContent = keyword;
+      if (badgeEl) {
+        var parts = [];
+        parts.push(keywords.length + ' 個建議');
+        if (sources.google) parts.push('來自 Google: ' + sources.google + ' 筆原始資料');
+        badgeEl.textContent = parts.join(' | ');
+      }
+
+      if (!keywords.length) {
+        gridEl.innerHTML = '<p class="text-secondary" style="padding:var(--space-md);">未找到相關長尾關鍵字。</p>';
+      } else {
+        gridEl.innerHTML = keywords.map(function (kw) {
+          return '<div class="kw-result-card">' +
+            '<span class="kw-result-text">' + Utils.escapeHtml(kw) + '</span>' +
+            '<div class="kw-result-actions">' +
+              '<button class="kw-result-btn" title="複製" data-kwr-copy="' + Utils.escapeHtml(kw) + '">&#x2398;</button>' +
+              '<button class="kw-result-btn use-btn" title="用此關鍵字產文" data-kwr-use="' + Utils.escapeHtml(kw) + '">&#x2192;</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        // Bind copy buttons
+        gridEl.querySelectorAll('[data-kwr-copy]').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var kw = this.getAttribute('data-kwr-copy');
+            navigator.clipboard.writeText(kw).then(function () {
+              Toast.show('已複製: ' + kw, 'success');
+            });
+          });
+        });
+
+        // Bind use buttons
+        gridEl.querySelectorAll('[data-kwr-use]').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var kw = this.getAttribute('data-kwr-use');
+            Router.navigate('dashboard');
+            setTimeout(function () {
+              Tabs.switchTo('step2');
+              var input = $('#article-keyword');
+              if (input) input.value = kw;
+            }, 100);
+          });
+        });
+      }
+
+      results.style.display = 'block';
+    },
+
+    copyAll: function () {
+      if (!this.lastResults || !this.lastResults.keywords) return;
+      var text = this.lastResults.keywords.join('\n');
+      navigator.clipboard.writeText(text).then(function () {
+        Toast.show('已複製 ' + KeywordResearch.lastResults.keywords.length + ' 個關鍵字', 'success');
+      });
+    },
+  };
+
+  // ---------------------------------------------------------------------------
   // UI Event Bindings
   // ---------------------------------------------------------------------------
   function bindEvents() {
@@ -1313,7 +1764,7 @@
     }
 
     // --- Logout buttons ---
-    var logoutBtns = ['#btn-logout', '#btn-logout-logs'];
+    var logoutBtns = ['#btn-logout', '#btn-logout-logs', '#btn-logout-schedule', '#btn-logout-keywords', '#btn-logout-kwresearch'];
     logoutBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) btn.addEventListener('click', function () { Auth.logout(); });
@@ -1332,6 +1783,9 @@
     }
     setupDropdown('#user-avatar-btn', '#user-dropdown');
     setupDropdown('#user-avatar-btn-logs', '#user-dropdown-logs');
+    setupDropdown('#user-avatar-btn-schedule', '#user-dropdown-schedule');
+    setupDropdown('#user-avatar-btn-keywords', '#user-dropdown-keywords');
+    setupDropdown('#user-avatar-btn-kwresearch', '#user-dropdown-kwresearch');
 
     // Close dropdowns on outside click
     document.addEventListener('click', function () {
@@ -1504,15 +1958,94 @@
       refreshLogsBtn.addEventListener('click', function () { Logs.load(Logs.currentPage); });
     }
 
+    // --- Schedule ---
+    var btnOpenScheduleModal = $('#btn-open-schedule-modal');
+    if (btnOpenScheduleModal) {
+      btnOpenScheduleModal.addEventListener('click', function () { Schedule.openAddModal(); });
+    }
+    var btnCloseScheduleModal = $('#btn-close-schedule-modal');
+    if (btnCloseScheduleModal) {
+      btnCloseScheduleModal.addEventListener('click', function () { Schedule.closeModal(); });
+    }
+    var btnCancelScheduleModal = $('#btn-cancel-schedule-modal');
+    if (btnCancelScheduleModal) {
+      btnCancelScheduleModal.addEventListener('click', function () { Schedule.closeModal(); });
+    }
+    var btnSaveScheduleModal = $('#btn-save-schedule-modal');
+    if (btnSaveScheduleModal) {
+      btnSaveScheduleModal.addEventListener('click', function () { Schedule.saveModal(); });
+    }
+    var scheduleModalOverlay = $('#schedule-modal-overlay');
+    if (scheduleModalOverlay) {
+      scheduleModalOverlay.addEventListener('click', function (e) {
+        if (e.target === scheduleModalOverlay) Schedule.closeModal();
+      });
+    }
+    var scheduleSearch = $('#schedule-search-input');
+    if (scheduleSearch) {
+      var scheduleSearchTimer;
+      scheduleSearch.addEventListener('input', function () {
+        clearTimeout(scheduleSearchTimer);
+        scheduleSearchTimer = setTimeout(function () {
+          Schedule.currentSearch = scheduleSearch.value.trim();
+          Schedule.load(1);
+        }, 300);
+      });
+    }
+    var scheduleFilterStatus = $('#schedule-filter-status');
+    if (scheduleFilterStatus) {
+      scheduleFilterStatus.addEventListener('change', function () {
+        Schedule.currentFilter = this.value;
+        Schedule.load(1);
+      });
+    }
+    var btnRefreshSchedule = $('#btn-refresh-schedule');
+    if (btnRefreshSchedule) {
+      btnRefreshSchedule.addEventListener('click', function () { Schedule.load(Schedule.currentPage); });
+    }
+
+    // --- Keywords page ---
+    var keywordsSearch = $('#keywords-search-input');
+    if (keywordsSearch) {
+      var kwSearchTimer;
+      keywordsSearch.addEventListener('input', function () {
+        clearTimeout(kwSearchTimer);
+        kwSearchTimer = setTimeout(function () {
+          Keywords.searchTerm = keywordsSearch.value.trim();
+          Keywords._render();
+        }, 300);
+      });
+    }
+    var btnRefreshKeywords = $('#btn-refresh-keywords');
+    if (btnRefreshKeywords) {
+      btnRefreshKeywords.addEventListener('click', function () { Keywords.load(); });
+    }
+
+    // --- Keyword Research page ---
+    var btnKwResearch = $('#btn-kw-research');
+    if (btnKwResearch) {
+      btnKwResearch.addEventListener('click', function () { KeywordResearch.search(); });
+    }
+    var kwResearchInput = $('#kw-research-input');
+    if (kwResearchInput) {
+      kwResearchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { KeywordResearch.search(); }
+      });
+    }
+    var btnKwCopyAll = $('#btn-kw-copy-all');
+    if (btnKwCopyAll) {
+      btnKwCopyAll.addEventListener('click', function () { KeywordResearch.copyAll(); });
+    }
+
     // --- Modals ---
     // Open modals
-    var wpSitesModalBtns = ['#btn-wp-sites-modal', '#btn-wp-sites-modal-logs'];
+    var wpSitesModalBtns = ['#btn-wp-sites-modal', '#btn-wp-sites-modal-logs', '#btn-wp-sites-modal-schedule', '#btn-wp-sites-modal-keywords', '#btn-wp-sites-modal-kwresearch'];
     wpSitesModalBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) btn.addEventListener('click', function () { Modal.open('modal-wp-sites'); });
     });
 
-    var settingsModalBtns = ['#btn-settings-modal', '#btn-settings-modal-logs'];
+    var settingsModalBtns = ['#btn-settings-modal', '#btn-settings-modal-logs', '#btn-settings-modal-schedule', '#btn-settings-modal-keywords', '#btn-settings-modal-kwresearch'];
     settingsModalBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) {

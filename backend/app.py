@@ -33,6 +33,13 @@ def create_app():
     def not_found(e):
         return {'error': '找不到此資源'}, 404
 
+    try:
+        if not os.environ.get('TESTING'):
+            from services.scheduler import create_scheduler
+            create_scheduler(app)
+    except Exception:
+        pass
+
     return app
 
 
