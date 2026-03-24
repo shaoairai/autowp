@@ -16,6 +16,7 @@ class Task(db.Model):
     steps_detail = db.Column(db.JSON, default=dict)
     result = db.Column(db.JSON, default=dict)
     error_message = db.Column(db.Text)
+    source = db.Column(db.String(20), nullable=False, default='manual')  # 'manual'/'scheduled'/'auto_publish'
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                            onupdate=lambda: datetime.now(timezone.utc))
@@ -33,6 +34,7 @@ class Task(db.Model):
             'steps_detail': self.steps_detail,
             'result': self.result,
             'error_message': self.error_message,
+            'source': self.source,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

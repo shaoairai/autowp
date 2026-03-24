@@ -189,4 +189,6 @@ def generate_article(api_key, keyword, title=None, author_background=None, artic
         if field not in result:
             raise ValueError(f'Claude 回應缺少必要欄位: {field}')
 
+    result['_prompt_snapshot'] = prompt
+
     return result

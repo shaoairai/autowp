@@ -180,6 +180,7 @@
           <span class="app-nav-link" data-nav="schedule">排程</span>
           <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
           <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link" data-nav="keyword-pool">關鍵字庫</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn" title="使用者選單">U</div>
@@ -347,6 +348,25 @@
                 <span id="status-resend-text">未設定</span>
               </span>
               <button class="btn btn-sm btn-secondary" id="save-resend">儲存</button>
+            </div>
+          </div>
+
+          <!-- Auto-Publish Defaults -->
+          <div class="card setting-card" style="grid-column: 1 / -1;">
+            <div class="setting-card-icon" style="background:var(--primary-light);color:var(--primary);">&#9998;</div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-sm);">自動發文預設值</h3>
+            <p class="text-secondary" style="font-size: var(--text-xs); margin-bottom: var(--space-md);">設定自動發文時使用的作者背景與文章指示，留空則使用系統預設值。</p>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <label style="font-size: var(--text-sm); margin-bottom: var(--space-xs); display:block;">作者背景</label>
+              <textarea class="form-input" id="auto-publish-author-bg" rows="4" placeholder="留空則使用系統預設的作者背景" style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+              <label style="font-size: var(--text-sm); margin-bottom: var(--space-xs); display:block;">文章指示</label>
+              <textarea class="form-input" id="auto-publish-article-inst" rows="5" placeholder="留空則使用系統預設的文章指示" style="resize:vertical;"></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-secondary" style="font-size: var(--text-xs);">用於每晚自動發文</span>
+              <button class="btn btn-sm btn-secondary" id="save-auto-publish-defaults">儲存</button>
             </div>
           </div>
         </div>
@@ -630,6 +650,7 @@
           <span class="app-nav-link" data-nav="schedule">排程</span>
           <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
           <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link" data-nav="keyword-pool">關鍵字庫</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn-logs" title="使用者選單">U</div>
@@ -678,6 +699,7 @@
               <th>關鍵字</th>
               <th>文章標題</th>
               <th>站台</th>
+              <th>來源</th>
               <th>狀態</th>
               <th>建立時間</th>
               <th>操作</th>
@@ -798,6 +820,7 @@
           <span class="app-nav-link active" data-nav="schedule">排程</span>
           <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
           <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link" data-nav="keyword-pool">關鍵字庫</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn-schedule" title="使用者選單">U</div>
@@ -910,6 +933,7 @@
           <span class="app-nav-link" data-nav="schedule">排程</span>
           <span class="app-nav-link active" data-nav="keywords">關鍵字管理</span>
           <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link" data-nav="keyword-pool">關鍵字庫</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn-keywords" title="使用者選單">U</div>
@@ -994,6 +1018,7 @@
           <span class="app-nav-link" data-nav="schedule">排程</span>
           <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
           <span class="app-nav-link active" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link" data-nav="keyword-pool">關鍵字庫</span>
         </nav>
         <div class="user-menu">
           <div class="user-avatar" id="user-avatar-btn-kwresearch" title="使用者選單">U</div>
@@ -1058,6 +1083,119 @@
         <div class="empty-state-icon">&#9888;</div>
         <h3 id="kw-research-error-msg">搜尋失敗</h3>
         <p>請稍後再試。</p>
+      </div>
+    </main>
+
+  </section>
+
+  <!-- ================================================================ -->
+  <!-- KEYWORD POOL PAGE                                                  -->
+  <!-- ================================================================ -->
+  <section class="page page-keyword-pool" data-page="keyword-pool">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-brand">AutoWP</div>
+        <nav class="app-nav">
+          <span class="app-nav-link" data-nav="dashboard">主控台</span>
+          <span class="app-nav-link" data-nav="logs">執行紀錄</span>
+          <span class="app-nav-link" data-nav="schedule">排程</span>
+          <span class="app-nav-link" data-nav="keywords">關鍵字管理</span>
+          <span class="app-nav-link" data-nav="keyword-research">關鍵字研究</span>
+          <span class="app-nav-link active" data-nav="keyword-pool">關鍵字庫</span>
+        </nav>
+        <div class="user-menu">
+          <div class="user-avatar" id="user-avatar-btn-kwpool" title="使用者選單">U</div>
+          <div class="user-dropdown" id="user-dropdown-kwpool">
+            <div class="user-dropdown-item" style="cursor:default; color:var(--text-primary); font-weight:500;" id="dropdown-username-kwpool">使用者</div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-settings-modal-kwpool">API 金鑰設定</button>
+            <button class="user-dropdown-item" id="btn-wp-sites-modal-kwpool">WordPress 站台</button>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="btn-logout-kwpool" style="color: var(--color-error);">登出</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="logs-content">
+      <div class="card-header">
+        <h2>關鍵字庫</h2>
+        <p>管理可用關鍵字，系統每晚 7 點自動取用未使用的關鍵字發文。</p>
+      </div>
+
+      <!-- Website topic config -->
+      <div class="card mb-lg">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-sm);">
+          <h3 style="margin:0;font-size:var(--text-base);">網站主題設定</h3>
+        </div>
+        <div class="card-body" style="display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;padding:var(--space-md);">
+          <input type="text" id="kp-topic-input" class="form-input" placeholder="例如：幫客戶架設網站做SEO的廠商" style="flex:1;min-width:200px;" />
+          <button class="btn btn-primary btn-sm" id="kp-save-topic-btn">儲存主題</button>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-lg);flex-wrap:wrap;">
+        <button class="btn btn-primary" id="kp-sync-wp-btn">從 WordPress 同步關鍵字</button>
+        <button class="btn btn-secondary" id="kp-research-btn">以主題研究長尾關鍵字</button>
+      </div>
+
+      <!-- Filter -->
+      <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md);align-items:center;flex-wrap:wrap;">
+        <select id="kp-filter-used" class="form-input" style="width:auto;">
+          <option value="">全部</option>
+          <option value="false">未使用</option>
+          <option value="true">已使用</option>
+        </select>
+        <span id="kp-total-badge" class="text-secondary" style="font-size:var(--text-sm);"></span>
+      </div>
+
+      <!-- Keyword table -->
+      <div class="card mb-lg">
+        <div id="kp-loading" class="text-secondary" style="padding:var(--space-lg);text-align:center;">載入中...</div>
+        <div id="kp-empty" style="display:none;padding:var(--space-lg);text-align:center;" class="text-secondary">關鍵字庫為空，請點選上方按鈕新增關鍵字。</div>
+        <div id="kp-table-wrapper" class="data-table-wrapper" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>關鍵字</th>
+                <th>來源</th>
+                <th>狀態</th>
+                <th>新增時間</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="kp-table-body"></tbody>
+          </table>
+        </div>
+        <div id="kp-pagination" style="padding:var(--space-md);display:flex;gap:var(--space-xs);justify-content:center;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Auto-publish logs -->
+      <div class="card-header" style="margin-top:var(--space-xl);">
+        <h2>自動發文記錄</h2>
+        <p>每晚 7 點的自動檢查與發文結果。</p>
+      </div>
+      <div class="card">
+        <div id="kp-log-loading" class="text-secondary" style="padding:var(--space-lg);text-align:center;">載入中...</div>
+        <div id="kp-log-empty" style="display:none;padding:var(--space-lg);text-align:center;" class="text-secondary">尚無自動發文記錄。</div>
+        <div id="kp-log-table-wrapper" class="data-table-wrapper" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>狀態</th>
+                <th>關鍵字</th>
+                <th>備註</th>
+                <th>時間</th>
+              </tr>
+            </thead>
+            <tbody id="kp-log-body"></tbody>
+          </table>
+        </div>
+        <div id="kp-log-pagination" style="padding:var(--space-md);display:flex;gap:var(--space-xs);justify-content:center;flex-wrap:wrap;"></div>
       </div>
     </main>
 

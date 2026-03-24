@@ -206,6 +206,22 @@
         });
       });
     },
+
+    get: function (path) {
+      return this.call('GET', path);
+    },
+
+    post: function (path, data) {
+      return this.call('POST', path, data);
+    },
+
+    put: function (path, data) {
+      return this.call('PUT', path, data);
+    },
+
+    delete: function (path) {
+      return this.call('DELETE', path);
+    },
   };
 
   // ---------------------------------------------------------------------------
@@ -349,6 +365,8 @@
         Keywords.load();
       } else if (page === 'keyword-research') {
         KeywordResearch.init();
+      } else if (page === 'keyword-pool') {
+        KeywordPool.load(1);
       }
     },
 
@@ -399,6 +417,12 @@
       if (s.custom_prompt) {
         PromptEditor.setPrompt(s.custom_prompt);
       }
+
+      // Auto-publish defaults
+      var apAuthorBg = $('#auto-publish-author-bg');
+      var apArticleInst = $('#auto-publish-article-inst');
+      if (apAuthorBg && s.auto_publish_author_bg) apAuthorBg.value = s.auto_publish_author_bg;
+      if (apArticleInst && s.auto_publish_article_inst) apArticleInst.value = s.auto_publish_article_inst;
     },
 
     _setStatus: function (name, isSet) {
@@ -466,6 +490,19 @@
           Toast.show('Resend 設定已儲存', 'success');
           Settings._setStatus('resend', !!key || (Settings.data && Settings.data.resend_api_key_enc === '********'));
           $('#resend-api-key').value = '';
+        })
+        .catch(function (err) { Toast.show(err.message, 'error'); });
+    },
+
+    saveAutoPublishDefaults: function () {
+      var data = {
+        auto_publish_author_bg: $('#auto-publish-author-bg').value.trim() || null,
+        auto_publish_article_inst: $('#auto-publish-article-inst').value.trim() || null,
+      };
+
+      Api.call('PUT', '/settings', data)
+        .then(function () {
+          Toast.show('自動發文預設值已儲存', 'success');
         })
         .catch(function (err) { Toast.show(err.message, 'error'); });
     },
@@ -1091,6 +1128,12 @@
         return map[status] || '<span class="badge badge-default">' + Utils.escapeHtml(status) + '</span>';
       };
 
+      var sourceBadge = function (source) {
+        if (source === 'auto_publish') return '<span class="badge badge-info">自動發文</span>';
+        if (source === 'scheduled') return '<span class="badge badge-secondary">排程</span>';
+        return '<span class="badge badge-default">手動</span>';
+      };
+
       tbody.innerHTML = filtered.map(function (t, idx) {
         var result = t.result || {};
         var hasContent = result.article_content ? true : false;
@@ -1099,6 +1142,7 @@
           '<td>' + Utils.escapeHtml(t.keyword || '-') + '</td>' +
           '<td class="truncate" style="max-width:200px;">' + Utils.escapeHtml(t.title || result.article_title || '-') + '</td>' +
           '<td>' + Utils.escapeHtml(t.wp_url || '-') + '</td>' +
+          '<td>' + sourceBadge(t.source) + '</td>' +
           '<td>' + statusBadge(t.status) + '</td>' +
           '<td>' + Utils.formatDate(t.created_at) + '</td>' +
           '<td style="white-space:nowrap;">' +
@@ -1667,6 +1711,204 @@
   };
 
   // ---------------------------------------------------------------------------
+  // KeywordPool Module
+  // ---------------------------------------------------------------------------
+  var KeywordPool = {
+    _currentPage: 1,
+    _filterUsed: '',
+
+    load: function (page) {
+      this._currentPage = page || 1;
+      var filterEl = $('#kp-filter-used');
+      this._filterUsed = filterEl ? filterEl.value : '';
+      this._loadConfig();
+      this._loadKeywords();
+      this._loadLogs(1);
+    },
+
+    _loadConfig: function () {
+      Api.get('/keyword-pool/config').then(function (res) {
+        var input = $('#kp-topic-input');
+        if (input) input.value = res.topic || '';
+      }).catch(function () {});
+    },
+
+    _loadKeywords: function () {
+      var self = this;
+      var loading = $('#kp-loading');
+      var empty = $('#kp-empty');
+      var wrapper = $('#kp-table-wrapper');
+      var badge = $('#kp-total-badge');
+      if (loading) loading.style.display = '';
+      if (empty) empty.style.display = 'none';
+      if (wrapper) wrapper.style.display = 'none';
+
+      var params = 'page=' + self._currentPage + '&per_page=20';
+      if (self._filterUsed !== '') params += '&is_used=' + self._filterUsed;
+
+      Api.get('/keyword-pool?' + params).then(function (res) {
+        if (loading) loading.style.display = 'none';
+        if (badge) badge.textContent = '共 ' + res.total + ' 個關鍵字';
+        if (!res.items || res.items.length === 0) {
+          if (empty) empty.style.display = '';
+          return;
+        }
+        if (wrapper) wrapper.style.display = '';
+        self._renderRows(res.items);
+        self._renderPagination(res.page, res.pages);
+      }).catch(function (err) {
+        if (loading) loading.style.display = 'none';
+        Toast.show(err.message || '載入失敗', 'error');
+      });
+    },
+
+    _renderRows: function (items) {
+      var self = this;
+      var tbody = $('#kp-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      items.forEach(function (kw) {
+        var tr = document.createElement('tr');
+        var sourceLabel = kw.source === 'wp' ? 'WP同步' : kw.source === 'research' ? '研究' : '手動';
+        var usedBadge = kw.is_used
+          ? '<span class="badge badge-secondary">已使用</span>'
+          : '<span class="badge badge-success">未使用</span>';
+        tr.innerHTML = '<td>' + Utils.escapeHtml(kw.keyword) + '</td>' +
+          '<td>' + sourceLabel + '</td>' +
+          '<td>' + usedBadge + '</td>' +
+          '<td>' + (kw.created_at ? kw.created_at.slice(0, 10) : '') + '</td>' +
+          '<td style="white-space:nowrap;">' +
+            '<button class="btn btn-ghost btn-sm" data-kp-toggle="' + kw.id + '">' + (kw.is_used ? '標為未使用' : '標為已使用') + '</button>' +
+            ' <button class="btn btn-ghost btn-sm" style="color:var(--color-error);" data-kp-delete="' + kw.id + '">刪除</button>' +
+            ' <button class="btn btn-primary btn-sm" data-kp-generate="' + encodeURIComponent(kw.keyword) + '">生成文章</button>' +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+
+      // Bind row action buttons
+      tbody.addEventListener('click', function (e) {
+        var toggleBtn = e.target.closest('[data-kp-toggle]');
+        var deleteBtn = e.target.closest('[data-kp-delete]');
+        var generateBtn = e.target.closest('[data-kp-generate]');
+        if (toggleBtn) self._toggleKeyword(parseInt(toggleBtn.getAttribute('data-kp-toggle')));
+        if (deleteBtn) self._deleteKeyword(parseInt(deleteBtn.getAttribute('data-kp-delete')));
+        if (generateBtn) {
+          var kw = decodeURIComponent(generateBtn.getAttribute('data-kp-generate'));
+          localStorage.setItem('autowp_prefill_keyword', kw);
+          Router.navigate('dashboard');
+        }
+      }, { once: true });
+    },
+
+    _renderPagination: function (page, pages) {
+      var self = this;
+      var container = $('#kp-pagination');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!pages || pages <= 1) return;
+      var prevBtn = document.createElement('button');
+      prevBtn.className = 'btn btn-ghost btn-sm';
+      prevBtn.textContent = '上一頁';
+      prevBtn.disabled = page <= 1;
+      prevBtn.addEventListener('click', function () { self.load(page - 1); });
+      container.appendChild(prevBtn);
+      for (var i = 1; i <= pages; i++) {
+        (function (pageNum) {
+          var btn = document.createElement('button');
+          btn.className = 'btn btn-sm' + (pageNum === page ? ' btn-primary' : ' btn-ghost');
+          btn.textContent = pageNum;
+          btn.addEventListener('click', function () { self.load(pageNum); });
+          container.appendChild(btn);
+        })(i);
+      }
+      var nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-ghost btn-sm';
+      nextBtn.textContent = '下一頁';
+      nextBtn.disabled = page >= pages;
+      nextBtn.addEventListener('click', function () { self.load(page + 1); });
+      container.appendChild(nextBtn);
+    },
+
+    _loadLogs: function (page) {
+      var self = this;
+      var loading = $('#kp-log-loading');
+      var empty = $('#kp-log-empty');
+      var wrapper = $('#kp-log-table-wrapper');
+      if (loading) loading.style.display = '';
+      if (empty) empty.style.display = 'none';
+      if (wrapper) wrapper.style.display = 'none';
+
+      Api.get('/keyword-pool/auto-publish-logs?page=' + page + '&per_page=10').then(function (res) {
+        if (loading) loading.style.display = 'none';
+        if (!res.items || res.items.length === 0) {
+          if (empty) empty.style.display = '';
+          return;
+        }
+        if (wrapper) wrapper.style.display = '';
+        var tbody = $('#kp-log-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        res.items.forEach(function (log) {
+          var tr = document.createElement('tr');
+          var statusMap = { success: '成功', skipped: '已跳過', failed: '失敗', no_keyword: '無關鍵字' };
+          var statusLabel = statusMap[log.status] || log.status;
+          var statusClass = log.status === 'success' ? 'badge-success' : log.status === 'skipped' ? 'badge-secondary' : 'badge-error';
+          tr.innerHTML = '<td>' + Utils.escapeHtml(log.check_date || '') + '</td>' +
+            '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+            '<td>' + Utils.escapeHtml(log.keyword || '—') + '</td>' +
+            '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + Utils.escapeHtml(log.note || '') + '">' + Utils.escapeHtml(log.note || '—') + '</td>' +
+            '<td>' + (log.created_at ? log.created_at.slice(0, 16).replace('T', ' ') : '') + '</td>';
+          tbody.appendChild(tr);
+        });
+        self._renderLogPagination(res.page, res.pages);
+      }).catch(function () {
+        if (loading) loading.style.display = 'none';
+      });
+    },
+
+    _renderLogPagination: function (page, pages) {
+      var self = this;
+      var container = $('#kp-log-pagination');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!pages || pages <= 1) return;
+      var prevBtn = document.createElement('button');
+      prevBtn.className = 'btn btn-ghost btn-sm';
+      prevBtn.textContent = '上一頁';
+      prevBtn.disabled = page <= 1;
+      prevBtn.addEventListener('click', function () { self._loadLogs(page - 1); });
+      container.appendChild(prevBtn);
+      var nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-ghost btn-sm';
+      nextBtn.textContent = '下一頁';
+      nextBtn.disabled = page >= pages;
+      nextBtn.addEventListener('click', function () { self._loadLogs(page + 1); });
+      container.appendChild(nextBtn);
+    },
+
+    _toggleKeyword: function (id) {
+      var self = this;
+      Api.put('/keyword-pool/' + id + '/toggle', {}).then(function () {
+        Toast.show('狀態已更新', 'success');
+        self._loadKeywords();
+      }).catch(function (err) {
+        Toast.show(err.message || '操作失敗', 'error');
+      });
+    },
+
+    _deleteKeyword: function (id) {
+      if (!confirm('確定要刪除這個關鍵字？')) return;
+      var self = this;
+      Api.delete('/keyword-pool/' + id).then(function () {
+        Toast.show('已刪除', 'success');
+        self._loadKeywords();
+      }).catch(function (err) {
+        Toast.show(err.message || '刪除失敗', 'error');
+      });
+    },
+  };
+
+  // ---------------------------------------------------------------------------
   // UI Event Bindings
   // ---------------------------------------------------------------------------
   function bindEvents() {
@@ -1764,7 +2006,7 @@
     }
 
     // --- Logout buttons ---
-    var logoutBtns = ['#btn-logout', '#btn-logout-logs', '#btn-logout-schedule', '#btn-logout-keywords', '#btn-logout-kwresearch'];
+    var logoutBtns = ['#btn-logout', '#btn-logout-logs', '#btn-logout-schedule', '#btn-logout-keywords', '#btn-logout-kwresearch', '#btn-logout-kwpool'];
     logoutBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) btn.addEventListener('click', function () { Auth.logout(); });
@@ -1786,6 +2028,7 @@
     setupDropdown('#user-avatar-btn-schedule', '#user-dropdown-schedule');
     setupDropdown('#user-avatar-btn-keywords', '#user-dropdown-keywords');
     setupDropdown('#user-avatar-btn-kwresearch', '#user-dropdown-kwresearch');
+    setupDropdown('#user-avatar-btn-kwpool', '#user-dropdown-kwpool');
 
     // Close dropdowns on outside click
     document.addEventListener('click', function () {
@@ -1803,6 +2046,9 @@
 
     var saveResendBtn = $('#save-resend');
     if (saveResendBtn) saveResendBtn.addEventListener('click', function () { Settings.saveResend(); });
+
+    var saveAutoPublishBtn = $('#save-auto-publish-defaults');
+    if (saveAutoPublishBtn) saveAutoPublishBtn.addEventListener('click', function () { Settings.saveAutoPublishDefaults(); });
 
     // --- Test WP Connection ---
     var testWpBtn = $('#test-wp-connection');
@@ -2037,15 +2283,61 @@
       btnKwCopyAll.addEventListener('click', function () { KeywordResearch.copyAll(); });
     }
 
+    // --- Keyword Pool page ---
+    document.addEventListener('click', function (e) {
+      if (e.target.id === 'kp-save-topic-btn') {
+        var topicInput = $('#kp-topic-input');
+        var topic = topicInput ? topicInput.value : '';
+        Api.put('/keyword-pool/config', { topic: topic }).then(function () {
+          Toast.show('主題已儲存', 'success');
+        }).catch(function (err) { Toast.show(err.message || '儲存失敗', 'error'); });
+      }
+      if (e.target.id === 'kp-sync-wp-btn') {
+        e.target.disabled = true;
+        e.target.textContent = '同步中...';
+        Api.post('/keyword-pool/sync-wp', {}).then(function (res) {
+          Toast.show('同步完成，新增 ' + res.added + ' 個關鍵字', 'success');
+          KeywordPool.load(1);
+        }).catch(function (err) {
+          Toast.show(err.message || '同步失敗', 'error');
+        }).finally(function () {
+          e.target.disabled = false;
+          e.target.textContent = '從 WordPress 同步關鍵字';
+        });
+      }
+      if (e.target.id === 'kp-research-btn') {
+        e.target.disabled = true;
+        e.target.textContent = '研究中...';
+        var topicEl = $('#kp-topic-input');
+        var researchTopic = topicEl ? topicEl.value : '';
+        Api.post('/keyword-pool/research', { topic: researchTopic }).then(function (res) {
+          Toast.show('研究完成，新增 ' + res.added + ' 個長尾關鍵字', 'success');
+          KeywordPool.load(1);
+        }).catch(function (err) {
+          Toast.show(err.message || '研究失敗', 'error');
+        }).finally(function () {
+          e.target.disabled = false;
+          e.target.textContent = '以主題研究長尾關鍵字';
+        });
+      }
+    });
+
+    document.addEventListener('change', function (e) {
+      if (e.target.id === 'kp-filter-used') {
+        KeywordPool._filterUsed = e.target.value;
+        KeywordPool.load(1);
+      }
+    });
+
     // --- Modals ---
     // Open modals
-    var wpSitesModalBtns = ['#btn-wp-sites-modal', '#btn-wp-sites-modal-logs', '#btn-wp-sites-modal-schedule', '#btn-wp-sites-modal-keywords', '#btn-wp-sites-modal-kwresearch'];
+    var wpSitesModalBtns = ['#btn-wp-sites-modal', '#btn-wp-sites-modal-logs', '#btn-wp-sites-modal-schedule', '#btn-wp-sites-modal-keywords', '#btn-wp-sites-modal-kwresearch', '#btn-wp-sites-modal-kwpool'];
     wpSitesModalBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) btn.addEventListener('click', function () { Modal.open('modal-wp-sites'); });
     });
 
-    var settingsModalBtns = ['#btn-settings-modal', '#btn-settings-modal-logs', '#btn-settings-modal-schedule', '#btn-settings-modal-keywords', '#btn-settings-modal-kwresearch'];
+    var settingsModalBtns = ['#btn-settings-modal', '#btn-settings-modal-logs', '#btn-settings-modal-schedule', '#btn-settings-modal-keywords', '#btn-settings-modal-kwresearch', '#btn-settings-modal-kwpool'];
     settingsModalBtns.forEach(function (sel) {
       var btn = $(sel);
       if (btn) {

@@ -62,5 +62,11 @@ def update_settings():
         if field in data:
             setattr(setting, field, data[field])
 
+    # Handle auto-publish EEAT fields
+    if 'auto_publish_author_bg' in data:
+        setting.auto_publish_author_bg = data['auto_publish_author_bg'] or None
+    if 'auto_publish_article_inst' in data:
+        setting.auto_publish_article_inst = data['auto_publish_article_inst'] or None
+
     db.session.commit()
     return jsonify({'settings': setting.to_dict()})

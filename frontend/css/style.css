@@ -179,6 +179,7 @@ img {
 
 .page.active {
   display: flex;
+  flex-direction: column;
 }
 
 @keyframes fadeIn {

@@ -79,6 +79,15 @@ def generate():
                 custom_prompt=custom_prompt or setting.custom_prompt,
             )
 
+            # Store prompt snapshot in steps_detail for audit trail
+            _update_task_steps_detail(task_id, {
+                'prompt_snapshot': article_data.pop('_prompt_snapshot', ''),
+                'keyword': keyword,
+                'title': title,
+                'author_background': author_background,
+                'article_instruction': article_instruction,
+            })
+
             # Save article content to task immediately (so it's preserved even if later steps fail)
             _update_task(task_id, 'processing', 'ai_generating', result={
                 'article_title': article_data.get('title', ''),
@@ -376,6 +385,16 @@ def _get_current_step(task_id):
     """Get current step of a task."""
     task = Task.query.get(task_id)
     return task.current_step if task else 'unknown'
+
+
+def _update_task_steps_detail(task_id, steps_detail):
+    """Merge data into task steps_detail."""
+    task = Task.query.get(task_id)
+    if task:
+        current = task.steps_detail or {}
+        current.update(steps_detail)
+        task.steps_detail = current
+        db.session.commit()
 
 
 def _normalize_commas(content):

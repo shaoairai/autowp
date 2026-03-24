@@ -13,9 +13,22 @@ def init_db(app):
     with app.app_context():
         from models import User, AuthLog, Task, Setting  # noqa: F401
         db.create_all()
+        _migrate_columns()
         _seed_admin(app)
         # Dispose connections created during init so workers start fresh
         db.engine.dispose()
+
+
+def _migrate_columns():
+    """Add new columns to existing tables that create_all() won't patch."""
+    migrations = [
+        "ALTER TABLE settings ADD COLUMN IF NOT EXISTS auto_publish_author_bg TEXT",
+        "ALTER TABLE settings ADD COLUMN IF NOT EXISTS auto_publish_article_inst TEXT",
+    ]
+    with db.engine.connect() as conn:
+        for sql in migrations:
+            conn.execute(db.text(sql))
+        conn.commit()
 
 
 def _seed_admin(app):
